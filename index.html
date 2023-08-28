@@ -4,13 +4,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="https://developer.mozilla.org/favicon-48x48.cbbd161b.png">
   <title>MSE Player</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #333;
+      color: #fff;
+    }
+
+    #logs {
+      background-color: #222;
+      border-top: 1px solid #444;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 50px;
+      box-sizing: border-box;
+      overflow: auto;
+      font-size: 12px;
+    }
+
+    .log {
+      margin: 5px 0;
+      padding: 3px;
+      border-radius: 3px;
+      word-break: break-all;
+    }
+
+    .log.log {
+      color: #fff;
+      background-color: #333;
+    }
+
+    .log.warn {
+      color: #ff9800;
+      background-color: #4e4e4e;
+    }
+
+    .log.info {
+      color: #03a9f4;
+      background-color: #4e4e4e;
+    }
+
+    .log.error {
+      color: #f44336;
+      background-color: #4e4e4e;
+    }
+  </style>
 </head>
 
+
 <body>
-  <video controls></video>
-  <script src="./index.js"></script>
+  <video id="videoElement" controls autoplay></video>
+  <div id="logs"></div>
   <script src="https://s-debugger.tun.sgrok.tv/target.js"></script>
+  <!-- <script src="./index.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.9/shaka-player.compiled.min.js"
+    integrity="sha512-OFQYy4ZcZ2yedmxqnJN7nfD/d5bpIkz7CRv2S5VFHiIFBYOWJey5cewJo3yld1n1Ru+ctyGuV9R809MUcfDCIQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="./eme.js"></script>
 </body>
 
 </html>
