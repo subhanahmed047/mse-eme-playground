@@ -202,6 +202,8 @@ function sendLicenseRequest(event) {
             }).catch(function (error) {
                 console.error('Key Session - Failed to update the license', error);
             });
+        } else if (xhr.status === 403) {
+            console.error('Error Fetching license - Your custom data has expired');
         } else {
             console.error('Error fetching license:', xhr.statusText);
         }
