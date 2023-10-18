@@ -24,6 +24,9 @@ var sourceBuffer = null;
 
 function sourceOpen() {
   sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+  // for testing, if simply want to append a single buffer without going through the steps below
+  // simmply append a single chunk as following and comment out the rest
+  //sourceBuffer.appendBuffer(chunk);
   getFileLength(assetURL)
     .then(function (fileLength) {
       console.log((fileLength / 1024 / 1024).toFixed(2), "MB");
@@ -134,7 +137,7 @@ function appendSegment(chunk) {
     //   }
     // }, 1000);
     resolve();
-    sourceBuffer.removeEventListener("updateend", function () {});
+    sourceBuffer.removeEventListener("updateend", function () { });
   });
 }
 
