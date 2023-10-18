@@ -115,11 +115,10 @@ var customData = '';
 var initData = '';
 var config = [{
     initDataTypes: ['cenc'],
+    sessionTypes: ['temporary'],
     audioCapabilities: [{ contentType: 'audio/mp4; codecs="mp4a.40.2"' }],
     videoCapabilities: [{ contentType: 'video/mp4; codecs="avc1.42E01E"' }]
 }];
-var manifestUri = '';
-
 
 // Fetch the DASH manifest
 function fetchManifest(manifestUri) {
@@ -189,6 +188,7 @@ function sendLicenseRequest(event) {
     xhr.responseType = 'json';
     xhr.setRequestHeader('Content-Type', 'application/octet-stream');
     xhr.setRequestHeader('dt-custom-data', customData);
+    console.log('Sending the License Request...', licenseUri);
 
     xhr.onload = function () {
         if (xhr.status === 200) {
@@ -214,8 +214,10 @@ function sendLicenseRequest(event) {
     xhr.send(licenseRequest);
 }
 
-
 function load() {
+    // on some platfroms such as LG 2017, the `generateKeykeyRequest` is broken, in that case simply delete it and let shaka polyfill it
+    //delete HTMLMediaElement.prototype.webkitGenerateKeyRequest
+    //delete HTMLMediaElement.prototype.generateKeyRequest
     console.info('Installing Shaka Polyfills...');
     shaka.polyfill.installAll();
     // Fetch the DASH manifest
@@ -238,35 +240,66 @@ function load() {
 
             // Check if mediaKeys need to be set
             if (!videoElement.mediaKeys) {
+
+                if (!navigator.requestMediaKeySystemAccess) {
+                    return Promise.reject('EME API is unavailable');
+                }
+
+                // Set video source to the manifest
+                videoElement.src = manifestUri;
+
                 // Request MediaKeySystemAccess
                 console.info('Checking for ' + keySystem + ' support...');
-                navigator.requestMediaKeySystemAccess(keySystem, config).then(
+                return navigator.requestMediaKeySystemAccess(keySystem, config).then(
                     function (mediaKeySystemAccess) {
                         console.log(keySystem + ' is supported');
                         // Create MediaKeys
                         console.info('Creating MediaKeys...');
                         mediaKeySystemAccess.createMediaKeys().then(function (mediaKeys) {
-                            console.log('MediaKeys created', mediaKeys);
+                            console.log('MediaKeys successfully created');
                             // Set MediaKeys for video element
                             videoElement.setMediaKeys(mediaKeys);
 
                             // Create MediaKeySession
                             console.info('Creating a Session...');
                             var keySession = mediaKeys.createSession();
+                            // note the sessionId will be empty at this point as it is only populated when there is a successful handshake between the cdm and the userAgent
+                            // this handshake is successful if your generateRequest function is resolved
+                            console.log('Key Session successfully created', keySession);
+
+                            videoElement.addEventListener('dispose', function () {
+                                console.log('Disposing the video object');
+                                keySession.close().then(function (reason) {
+                                    console.log('Session closed', reason);
+                                });
+                            });
+
+                            // Check if the session is closed
+                            keySession.closed.then(function (reason) {
+                                console.log('Session is closed because', reason);
+                                // Do not generate request on a closed session
+                            });
+
+                            // Listen for any error with the session
+                            keySession.addEventListener('error', function (event) {
+                                console.error('There is an error with the session', event.error);
+                                // Do not generate request on an error session
+                            });
+
 
                             // Generate license request
                             console.info('Generating License Request...');
                             keySession.generateRequest('cenc', initData).then(function (res) {
                                 console.log('License request generated', res);
                             }).catch(function (error) {
-                                console.error('Failed to generate the license request', error);
+                                console.error('Failed to generate the license request', error)
                             });
 
                             console.log('Waiting for the message event...');
                             // Listen for license request message
                             keySession.addEventListener('message', function (event) {
                                 // Send the license request to the server
-                                console.info('Fetching License Data...');
+                                console.info('Message Received from the CDM, Fetching License Data...', event.message);
                                 sendLicenseRequest(event, initData);
                             }, false);
                         }).catch(function (error) {
@@ -274,19 +307,18 @@ function load() {
                         });
                     }
                 ).catch(function (error) {
-                    console.error('Key Configuration is not supported', keySystem, config);
+                    console.error('Key Configuration is not supported', keySystem, config, error);
                 });
             }
-
-            // Set video source to the manifest
-            videoElement.src = manifestUri;
         }).catch(function (error) {
-            console.error('Failed to parse the manifest', error);
+            console.error('Error:', error);
         });
     });
 }
 
 // Main function when the DOM is ready
 document.addEventListener('DOMContentLoaded', function () {
-    load();
+    setTimeout(function () {
+        load();
+    }, 3000)
 });
