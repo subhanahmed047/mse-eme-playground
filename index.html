@@ -1,73 +1,150 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      href="https://developer.mozilla.org/favicon-48x48.cbbd161b.png"
+    />
+    <title>MSE/EME Player</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #333;
+        color: #fff;
+      }
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="https://developer.mozilla.org/favicon-48x48.cbbd161b.png">
-  <title>MSE Player</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background-color: #333;
-      color: #fff;
-    }
+      #logs {
+        background-color: #222;
+        border-top: 1px solid #444;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 50px;
+        box-sizing: border-box;
+        overflow: auto;
+        font-size: 12px;
+      }
 
-    #logs {
-      background-color: #222;
-      border-top: 1px solid #444;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      padding: 50px;
-      box-sizing: border-box;
-      overflow: auto;
-      font-size: 12px;
-    }
+      .log {
+        margin: 5px 0;
+        padding: 3px;
+        border-radius: 3px;
+        word-break: break-all;
+      }
 
-    .log {
-      margin: 5px 0;
-      padding: 3px;
-      border-radius: 3px;
-      word-break: break-all;
-    }
+      .log.log {
+        color: #fff;
+        background-color: #333;
+      }
 
-    .log.log {
-      color: #fff;
-      background-color: #333;
-    }
+      .log.warn {
+        color: #ff9800;
+        background-color: #4e4e4e;
+      }
 
-    .log.warn {
-      color: #ff9800;
-      background-color: #4e4e4e;
-    }
+      .log.info {
+        color: #03a9f4;
+        background-color: #4e4e4e;
+      }
 
-    .log.info {
-      color: #03a9f4;
-      background-color: #4e4e4e;
-    }
+      .log.error {
+        color: #f44336;
+        background-color: #4e4e4e;
+      }
+    </style>
+  </head>
 
-    .log.error {
-      color: #f44336;
-      background-color: #4e4e4e;
-    }
-  </style>
-</head>
+  <body>
+    <video id="videoElement" controls autoplay></video>
+    <!-- <div id="logs"></div> -->
+    <!-- <script src="https://s-debugger.tun.sgrok.tv/target.js"></script> -->
+    <!-- <script>
+      // Override console methods to display logs on the screen
+      (function () {
+        function appendLog(message, type) {
+          var logContainer = document.getElementById("logs");
+          if (logContainer) {
+            var logElement = document.createElement("div");
+            logElement.classList.add("log", type);
+            logElement.textContent = message;
+            logContainer.appendChild(logElement);
+          }
+        }
 
+        var originalLog = console.log;
+        console.log = function () {
+          var message = Array.from(arguments)
+            .map(function (arg) {
+              if (typeof arg === "object") {
+                return JSON.stringify(arg, null, 2);
+              }
+              return arg;
+            })
+            .join(" ");
 
-<body>
-  <video id="videoElement" controls autoplay></video>
-  <div id="logs"></div>
-  <script src="https://s-debugger.tun.sgrok.tv/target.js"></script>
-  <!-- <script src="./index.js"></script> -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.9/shaka-player.compiled.min.js"
-    integrity="sha512-OFQYy4ZcZ2yedmxqnJN7nfD/d5bpIkz7CRv2S5VFHiIFBYOWJey5cewJo3yld1n1Ru+ctyGuV9R809MUcfDCIQ=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="./eme.js"></script>
-</body>
+          originalLog.apply(console, arguments);
+          appendLog(message, "log");
+        };
 
+        var originalWarn = console.warn;
+        console.warn = function () {
+          var message = Array.from(arguments)
+            .map(function (arg) {
+              if (typeof arg === "object") {
+                return JSON.stringify(arg, null, 2);
+              }
+              return arg;
+            })
+            .join(" ");
+
+          originalWarn.apply(console, arguments);
+          appendLog(message, "warn");
+        };
+
+        var originalInfo = console.info;
+        console.info = function () {
+          var message = Array.from(arguments)
+            .map(function (arg) {
+              if (typeof arg === "object") {
+                return JSON.stringify(arg, null, 2);
+              }
+              return arg;
+            })
+            .join(" ");
+
+          originalInfo.apply(console, arguments);
+          appendLog(message, "info");
+        };
+
+        var originalError = console.error;
+        console.error = function () {
+          var message = Array.from(arguments)
+            .map(function (arg) {
+              if (typeof arg === "object") {
+                return JSON.stringify(arg, null, 2);
+              }
+              return arg;
+            })
+            .join(" ");
+
+          originalError.apply(console, arguments);
+          appendLog(message, "error");
+        };
+      })();
+    </script> -->
+    <script src="./index.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.9/shaka-player.compiled.min.js"
+      integrity="sha512-OFQYy4ZcZ2yedmxqnJN7nfD/d5bpIkz7CRv2S5VFHiIFBYOWJey5cewJo3yld1n1Ru+ctyGuV9R809MUcfDCIQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <!-- <script src="./eme.js"></script> -->
+  </body>
 </html>
