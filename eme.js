@@ -43,76 +43,21 @@
 // 12. Play encrypted content
 // With the MediaKeySession updated with the license, the encrypted content can be played using the MediaSource API.
 
-
-// Override console methods to display logs on the screen
-(function () {
-    function appendLog(message, type) {
-        var logContainer = document.getElementById('logs');
-        if (logContainer) {
-            var logElement = document.createElement('div');
-            logElement.classList.add('log', type);
-            logElement.textContent = message;
-            logContainer.appendChild(logElement);
-        }
-    }
-
-    var originalLog = console.log;
-    console.log = function () {
-        var message = Array.from(arguments).map(function (arg) {
-            if (typeof arg === 'object') {
-                return JSON.stringify(arg, null, 2);
-            }
-            return arg;
-        }).join(' ');
-
-        originalLog.apply(console, arguments);
-        appendLog(message, 'log');
-    };
-
-    var originalWarn = console.warn;
-    console.warn = function () {
-        var message = Array.from(arguments).map(function (arg) {
-            if (typeof arg === 'object') {
-                return JSON.stringify(arg, null, 2);
-            }
-            return arg;
-        }).join(' ');
-
-        originalWarn.apply(console, arguments);
-        appendLog(message, 'warn');
-    };
-
-    var originalInfo = console.info;
-    console.info = function () {
-        var message = Array.from(arguments).map(function (arg) {
-            if (typeof arg === 'object') {
-                return JSON.stringify(arg, null, 2);
-            }
-            return arg;
-        }).join(' ');
-
-        originalInfo.apply(console, arguments);
-        appendLog(message, 'info');
-    };
-
-    var originalError = console.error;
-    console.error = function () {
-        var message = Array.from(arguments).map(function (arg) {
-            if (typeof arg === 'object') {
-                return JSON.stringify(arg, null, 2);
-            }
-            return arg;
-        }).join(' ');
-
-        originalError.apply(console, arguments);
-        appendLog(message, 'error');
-    };
-})();
-
 var keySystem = 'com.widevine.alpha';
-var licenseUri = '';
-var customData = '';
-var initData = '';
+var licenseUri = 'https://drm-widevine-licensing.axtest.net/AcquireLicense';
+var customData = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJ2ZXJzaW9uIjogMSwKICAiY29tX2tleV9pZCI6ICI2OWU1NDA4OC1lOWUwLTQ1MzAtOGMxYS0xZWI2ZGNkMGQxNGUiLAogICJtZXNzYWdlIjogewogICAgInR5cGUiOiAiZW50aXRsZW1lbnRfbWVzc2FnZSIsCiAgICAidmVyc2lvbiI6IDIsCiAgICAibGljZW5zZSI6IHsKICAgICAgImFsbG93X3BlcnNpc3RlbmNlIjogdHJ1ZQogICAgfSwKICAgICJjb250ZW50X2tleXNfc291cmNlIjogewogICAgICAiaW5saW5lIjogWwogICAgICAgIHsKICAgICAgICAgICJpZCI6ICI0MDYwYTg2NS04ODc4LTQyNjctOWNiZi05MWFlNWJhZTFlNzIiLAogICAgICAgICAgImVuY3J5cHRlZF9rZXkiOiAid3QzRW51dVI1UkFybjZBRGYxNkNCQT09IiwKICAgICAgICAgICJ1c2FnZV9wb2xpY3kiOiAiUG9saWN5IEEiCiAgICAgICAgfQogICAgICBdCiAgICB9LAogICAgImNvbnRlbnRfa2V5X3VzYWdlX3BvbGljaWVzIjogWwogICAgICB7CiAgICAgICAgIm5hbWUiOiAiUG9saWN5IEEiLAogICAgICAgICJwbGF5cmVhZHkiOiB7CiAgICAgICAgICAibWluX2RldmljZV9zZWN1cml0eV9sZXZlbCI6IDE1MCwKICAgICAgICAgICJwbGF5X2VuYWJsZXJzIjogWwogICAgICAgICAgICAiNzg2NjI3RDgtQzJBNi00NEJFLThGODgtMDhBRTI1NUIwMUE3IgogICAgICAgICAgXQogICAgICAgIH0KICAgICAgfQogICAgXQogIH0KfQ.l8PnZznspJ6lnNmfAE9UQV532Ypzt1JXQkvrk8gFSRw';
+var header = 'X-AxDRM-Message';
+var manifestUri = 'https://media.axprod.net/TestVectors/Dash/protected_dash_1080p_h264_singlekey/manifest.mpd';
+// var keySystem = 'com.widevine.alpha';
+// var licenseUri = 'https://lic.staging.drmtoday.com/license-proxy-widevine/cenc/';
+// var customData = 'eyJ1c2VySWQiOiAiMzAyNjRmNDBlMTYzNDgzYjlkNjJlYmE1MGFjMDdiMDUiLCJzZXNzaW9uSWQiOiAiZXlKaGJHY2lPaUpJVXpJMU5pSXNJbXRwWkNJNkluQnBhMkZqYUhVaUxDSjBlWEFpT2lKS1YxUWlmUS5leUpwWVhRaU9qRTNNRGsyTVRNMU1Ua3NJbVZ1ZENJNkluTmtJaXdpY0dsa0lqb3lOemd4TXpVeUxDSm1aV0YwSWpveU5qZzBNelUwTmpVMkxDSndkWEpqYUdGelpYTWlPakFzSW1Gd2NDSTZJbE4wWVc1VVZpMU1iMk5oYkNJc0lteHliaUk2TWpBek56RXhOVFk1TXpFM01qZzBNek14TVgwLjBSQ2NLSFo4N0lpVjJ3TG5xXy1LRy14bVNVMlMyN2J4WkljdHR3TmNCUlUiLCJtZXJjaGFudCI6ICJzdGFuIn0=';
+// var manifestUri = 'https://manifestproxy.tun.sgrok.tv/dash/hisense.mpd?url=https%3A%2F%2F434-stan.akamaized.net%2F04%2Fdash%2Fsit%2Flive%2F683a0af262e302881f306a20c2bfc92f%2F2781352A-6%2Fsd%2Fsdr%2Fmedium_h264-af9f786d.mpd%3FmaxQuality%3Dsd&type=tv&manufacturer=hisense&model=ha55m7030uwtg&platformVersion=mtk5658&version=5&drm=widevine';
+// var keySystem = 'com.microsoft.playready';
+// var licenseUri = 'http://lic.staging.drmtoday.com/license-proxy-headerauth/drmtoday/RightsManager.asmx';
+// var customData = 'eyJ1c2VySWQiOiAiYTEyMTQ3YmEzOGFjNGQ4NjhhZTYyYWJmMmNkZGM2YzIiLCJzZXNzaW9uSWQiOiAiZXlKaGJHY2lPaUpJVXpJMU5pSXNJbXRwWkNJNkluQnBhMkZqYUhVaUxDSjBlWEFpT2lKS1YxUWlmUS5leUpwWVhRaU9qRTJPVFV3TVRJNU5EUXNJbVZ1ZENJNkltaGtJaXdpY0dsa0lqbzBNVGN4T0RNNUxDSm1aV0YwSWpveU5qZzBNelUxTlRVMExDSndkWEpqYUdGelpYTWlPall3ZlEuZ0tYNnhEMXBnSGRIYzNxaXpuUm9EQnMwQVVyUWxzeHowR3FlWHBMT3pFZyIsIm1lcmNoYW50IjogInN0YW4ifQ==';
+// var header = 'dt-custom-data';
+// var initData = 'AAAATHBzc2gBAAAA7e-LqXnWSs6jyCfc1R0h7QAAAAG-CI7ecj9IiosWXRdFxtDUAAAAGBIQvgiO3nI_SIqLFl0XRcbQ1Ejj3JWbBg==';
+// var manifestUri = 'https://api.stan.com.au/manifest/v1/dash/lg.mpd?url=https%3A%2F%2Faws.stan.video%2F45%2Fdash%2Flive%2F3259748C-1%2Fhd%2Fsdr%2Fhigh_h264-7beec36c.mpd%3FmaxQuality%3Dhd&type=tv&manufacturer=lg&model=49uj654t-td&platformVersion=webos3_5&version=4&drm=playready';
 var config = [{
     initDataTypes: ['cenc'],
     sessionTypes: ['temporary'],
@@ -187,7 +132,7 @@ function sendLicenseRequest(event) {
     xhr.open('POST', licenseUri, true);
     xhr.responseType = 'json';
     xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-    xhr.setRequestHeader('dt-custom-data', customData);
+    xhr.setRequestHeader(header, customData);
     console.log('Sending the License Request...', licenseUri);
 
     xhr.onload = function () {
@@ -237,7 +182,7 @@ function load() {
             }
             // Get the video element
             var videoElement = document.getElementById('videoElement');
-
+            videoElement.addEventListener('webkitkeyerror', function (err) { console.error('Key Error Occured', err) });
             // Check if mediaKeys need to be set
             if (!videoElement.mediaKeys) {
 
@@ -255,8 +200,10 @@ function load() {
                         console.log(keySystem + ' is supported');
                         // Create MediaKeys
                         console.info('Creating MediaKeys...');
+
                         mediaKeySystemAccess.createMediaKeys().then(function (mediaKeys) {
                             console.log('MediaKeys successfully created');
+                            console.log('Setting the MediaKeys on the video element i.e. videoElement.setMediaKeys', mediaKeys);
                             // Set MediaKeys for video element
                             videoElement.setMediaKeys(mediaKeys);
 
